@@ -1,3 +1,10 @@
+# [1.0.0-beta.3](https://github.com/PurrNet/PurrNet-Facepunch/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2026-11-11)
+
+
+### Bug Fixes
+
+* free runner disk space before pulling the Unity image ([2566c55](https://github.com/PurrNet/PurrNet-Facepunch/commit/2566c55e0b0726f44c08a83dd44c14d1f18bf9eb))
+
 # [1.0.0-beta.2](https://github.com/PurrNet/PurrNet-Facepunch/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2026-11-11)
 
 
