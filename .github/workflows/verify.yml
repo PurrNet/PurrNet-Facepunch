@@ -1,0 +1,61 @@
+name: Verify
+on:
+  push:
+    branches: [ dev, release ]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      ref:
+        description: 'Branch, tag or commit to verify'
+        type: string
+        required: false
+permissions:
+  contents: read
+  checks: write
+jobs:
+  compile:
+    name: Compile against PurrNet in Unity
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      # Upstream only enables the Posix library for the macOS editor; the CI editor runs on Linux.
+      - name: Enable the Posix library in the Linux editor
+        run: |
+          set -euo pipefail
+          meta=Assets/PurrNetFacepunch/Plugins/Facepunch.Steamworks.Posix.dll.meta
+          grep -q "OS: OSX" "$meta"
+          sed -i "s/OS: OSX/OS: Linux/" "$meta"
+
+      - name: Restore Library cache
+        uses: actions/cache@v4
+        with:
+          path: TestProject/Library
+          key: Library-TestProject-${{ hashFiles('TestProject/Packages/manifest.json', 'TestProject/ProjectSettings/ProjectVersion.txt') }}
+          restore-keys: |
+            Library-TestProject-
+
+      - name: Run EditMode tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: TestProject
+          unityVersion: auto
+          testMode: editmode
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Facepunch backend tests
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: artifacts
+          retention-days: 7
