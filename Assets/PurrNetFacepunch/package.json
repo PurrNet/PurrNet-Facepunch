@@ -1,0 +1,21 @@
+{
+  "name": "dev.purrnet.facepunch",
+  "version": "1.0.0",
+  "author": {
+    "name": "PurrNet Team",
+    "url": "https://purrnet.dev/"
+  },
+  "description": "Lets PurrNet's SteamTransport run on Facepunch.Steamworks instead of Steamworks.NET. Includes Facepunch.Steamworks 2.5.2. Requires PurrNet.",
+  "displayName": "PurrNet Facepunch",
+  "unity": "2022.3",
+  "documentationUrl": "https://purrnet.dev/docs",
+  "keywords": [
+    "purrnet",
+    "networking",
+    "multiplayer",
+    "steam",
+    "facepunch"
+  ],
+  "hideInEditor": false,
+  "changelogUrl": "https://github.com/PurrNet/PurrNet-Facepunch/blob/dev/Assets/PurrNetFacepunch/CHANGELOG.md"
+}
