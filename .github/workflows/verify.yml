@@ -23,6 +23,12 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
 
+      # The Unity editor image does not fit on the runner next to the preinstalled toolchains.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          df -h /
+
       # Upstream only enables the Posix library for the macOS editor; the CI editor runs on Linux.
       - name: Enable the Posix library in the Linux editor
         run: |
