@@ -1,0 +1,84 @@
+name: Update Facepunch.Steamworks
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Facepunch.Steamworks release tag (empty = latest)'
+        required: false
+permissions:
+  contents: write
+  actions: write
+  checks: write
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  REQUESTED_VERSION: ${{ inputs.version }}
+jobs:
+  update:
+    name: Fetch the new release
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.update.outputs.branch }}
+      version: ${{ steps.update.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+
+      - name: Update the bundled library
+        id: update
+        run: |
+          set -euo pipefail
+          current="$(cat .facepunch-version)"
+          target="$REQUESTED_VERSION"
+          if [ -z "$target" ]; then
+            target="$(gh release view -R Facepunch/Facepunch.Steamworks --json tagName -q .tagName)"
+          fi
+          if [ "$target" = "$current" ]; then
+            echo "Already on Facepunch.Steamworks $current."
+            exit 0
+          fi
+
+          bash .github/scripts/update-facepunch.sh "$target"
+
+          branch="update/facepunch-$target"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: update Facepunch.Steamworks to $target"
+          git push --force origin "HEAD:refs/heads/$branch"
+
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          echo "version=$target" >> "$GITHUB_OUTPUT"
+
+  verify:
+    name: Verify the update
+    needs: update
+    if: needs.update.outputs.branch != ''
+    uses: ./.github/workflows/verify.yml
+    with:
+      ref: ${{ needs.update.outputs.branch }}
+    secrets: inherit
+
+  release:
+    name: Release the update
+    needs: [ update, verify ]
+    runs-on: ubuntu-latest
+    env:
+      BRANCH: ${{ needs.update.outputs.branch }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.update.outputs.branch }}
+          fetch-depth: 0
+
+      - name: Move dev to the verified update
+        run: |
+          set -euo pipefail
+          # Fails if dev moved on meanwhile; the next run starts again from the new dev.
+          git push origin "HEAD:refs/heads/dev"
+          git push origin --delete "$BRANCH"
+
+          # A push made with the workflow token does not start other workflows.
+          gh workflow run release.yml --ref dev
