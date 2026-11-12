@@ -1,3 +1,16 @@
+# 1.0.0 (2026-11-12)
+
+
+### Bug Fixes
+
+* free runner disk space before pulling the Unity image ([2566c55](https://github.com/PurrNet/PurrNet-Facepunch/commit/2566c55e0b0726f44c08a83dd44c14d1f18bf9eb))
+
+
+### Features
+
+* auto-update from Facepunch.Steamworks releases, gated on a Unity test run ([b7d86f2](https://github.com/PurrNet/PurrNet-Facepunch/commit/b7d86f2c55acc817a2e86a03db4218e4be645f0e))
+* Facepunch.Steamworks backend for PurrNet SteamTransport ([a92847b](https://github.com/PurrNet/PurrNet-Facepunch/commit/a92847b83480ef3ab17b86cda478d067374fc658))
+
 # [1.0.0-beta.3](https://github.com/PurrNet/PurrNet-Facepunch/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2026-11-11)
 
 
